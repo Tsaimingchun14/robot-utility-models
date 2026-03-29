@@ -4,7 +4,7 @@ set -e
 # Google drive folder ID to download the data from.
 # If you don't want to use Google drive, then set the next variable to empty and
 # just place the zipped data in the $ROOT_FOLDER according to README.
-GDRIVE_FOLDER_ID="1P1jKmmklXwB0js50OzSxiyCAJr"
+# GDRIVE_FOLDER_ID="1P1jKmmklXwB0js50OzSxiyCAJr"
 # Path to the client secret json file. If you would like to use google drive but don't have
 # the API keys yet, follow the instructions here: https://stackoverflow.com/a/72076913 
 # to generate it from Google developer console.
@@ -12,10 +12,14 @@ CLIENT_SECRET_JSON="client_secret.json"
 
 TASK_NAME="task_name"
 HOME="my_home" # used for folder naming purposes
-ROOT_FOLDER="data" # directory to which data will be downloaded
-EXPORT_FOLDER="data_extracted" # directory to which data will be extracted
+ROOT_FOLDER="/home/mctsai/RUMS/mobile-manipulation-data" # directory to which data will be downloaded
+EXPORT_FOLDER="/home/mctsai/RUMS/mobile-manipulation-data_extracted" # directory to which data will be extracted
 ENV_NO=1 # used to name environment within "home" folder
 GRIPPER_MODEL_PATH="gripper_model_new.pth"
+
+# ArUco gripper detection settings
+USE_ARUCO=true
+ARUCO_REPORT_PATH="$EXPORT_FOLDER/aruco_detection_all.csv"
 
 # Check if GDRIVE_FOLDER_ID is set.
 if [ ! -z "$GDRIVE_FOLDER_ID" ]; then
@@ -37,7 +41,12 @@ sleep 1
 echo "Done!"
 
 echo "Processing data..."
-python process_from_r3ds.py --r3d_paths_file "${EXPORT_FOLDER}/r3d_files.txt" --model_path $GRIPPER_MODEL_PATH
+ARUCO_FLAGS=""
+if [ "$USE_ARUCO" = true ]; then
+    ARUCO_FLAGS="--use_aruco --aruco_report_path $ARUCO_REPORT_PATH"
+fi
+
+python process_from_r3ds.py --r3d_paths_file "${EXPORT_FOLDER}/r3d_files.txt" --model_path $GRIPPER_MODEL_PATH $ARUCO_FLAGS
 sleep 1
 echo "Done!"
 

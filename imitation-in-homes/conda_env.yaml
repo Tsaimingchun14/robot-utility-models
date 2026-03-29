@@ -5,11 +5,11 @@ channels:
   - conda-forge
 dependencies:
   - python=3.9
-  - pytorch>=2.0.0
-  - torchvision>=0.15.2
-  - pytorch-cuda=11.8
+  - pytorch::pytorch=2.1.0
+  - pytorch::torchvision=0.16.0
+  - pytorch::pytorch-cuda=11.8
   - numpy>=1.25.2
-  - accelerate
+  - conda-forge::accelerate=0.25.0
   - pip
   - pip:
     - byol_pytorch==0.5.7

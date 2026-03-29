@@ -385,6 +385,16 @@ def filter_r3d_files_to_process(r3d_paths_file):
     return to_process
 
 
+def filter_r3d_files_with_completed(r3d_paths):
+    completed = []
+    for p in r3d_paths:
+        if not p.endswith('.zip'):
+            continue
+        if os.path.exists(os.path.join(p[:-4], 'completed.txt')):
+            completed.append(p)
+    return completed
+
+
 def process_r3d_file(file_path):
     logger.info(f"Processing {file_path}")
     processor = VideoProcessor(
@@ -446,6 +456,7 @@ if __name__ == "__main__":
 
     # Filter out the r3d files that have already been processed.
     r3d_paths = filter_r3d_files_to_process(r3d_paths_file)
+    r3d_paths = filter_r3d_files_with_completed(r3d_paths)
     if end_index == -1:
         end_index = len(r3d_paths)
     logger.info(f"Number of video files left to process: {len(r3d_paths)}")

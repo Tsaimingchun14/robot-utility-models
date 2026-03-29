@@ -2,7 +2,7 @@ defaults:
 - env_vars: env_vars
 - dataset: vqbet_train
 - model: resnet_dobb-e
-- loss_fn: vqbet_loss
+- loss_fn: diffusion_policy_loss
 - _self_
 
 num_epochs: 501
@@ -19,9 +19,11 @@ train_freeze_ratio: 0.98
 include_task: Bag_Pick_Up # a folder named with this task name must be in the dataset root provided in configs/env_vars/env_vars.yaml
 include_env: all
 
-vqvae_load_dir: /home/mctsai/RUMS/robot-utility-models/imitation-in-homes/checkpoints/2026-03-08/Bag_Pick_Up-all-21-33-48-rvq-n_embed-16-timeskip-7/checkpoint.pt
-vqvae_n_embed: 16 # should be same with rvq pre-training
-temperature: 2.0
+# Diffusion policy specific
+policy_type: transformer # or cnn
+action_sequence_length: 1 # must match (num_extra_actions + 1) in dataset config
+obs_window_size: ${dataset.train.config.sequence_length} # must match dataset sequence_length
+
 control_timeskip: 7
 
 batch_sampler:
@@ -51,16 +53,16 @@ scheduler:
   lr_decay_epochs: ${num_epochs}
 
 # Model saving and loading
-model_path: checkpoints/${now:%Y-%m-%d}/${include_task}-${include_env}-${now:%H-%M-%S}-vqbet-n_embed-${vqvae_n_embed}-depth-${use_depth}-dobb-e-temp-${temperature}-seq-select-${sequentially_select}-split-train-${split_training}-frozen-enc-${freeze_encoder}-timeskip-${control_timeskip}
-files_list_path: r3d_files/${now:%Y-%m-%d}/${include_task}-${include_env}-${now:%H-%M-%S}-vqbet-n_embed-${vqvae_n_embed}-depth-${use_depth}-dobb-e-temp-${temperature}-seq-select-${sequentially_select}-split-train-${split_training}-frozen-enc-${freeze_encoder}-timeskip-${control_timeskip}
+model_path: checkpoints/${now:%Y-%m-%d}/${include_task}-${include_env}-${now:%H-%M-%S}-diffusion-${policy_type}-depth-${use_depth}-seq-len-${obs_window_size}-timeskip-${control_timeskip}
+files_list_path: r3d_files/${now:%Y-%m-%d}/${include_task}-${include_env}-${now:%H-%M-%S}-diffusion-${policy_type}-depth-${use_depth}-seq-len-${obs_window_size}-timeskip-${control_timeskip}
 resume_training: false
 save_every: 5
 description: "(description)"
 
 wandb:
   entity: ${env_vars.wandb.entity}
-  project: vqbet-${include_task}
-  name: ${include_task}-${include_env}-vqbet-n_embed-${vqvae_n_embed}-depth-${use_depth}-dobb-e-temp-${temperature}-seq-select-${sequentially_select}-split-train-${split_training}-frozen-enc-${freeze_encoder}-timeskip-${control_timeskip}
+  project: diffusion-${include_task}
+  name: ${include_task}-${include_env}-diffusion-${policy_type}-depth-${use_depth}-seq-len-${obs_window_size}-timeskip-${control_timeskip}
   id: null
   save_code: true
 
